@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>UltraEdit Method 3D</title>
+<meta name="description" content="Interactive 3D walkthrough of one UltraEdit edit: attention probes, the attention-adaptive region, spatially adaptive coupling, shared keys and values, scaling back the edit where the copies agree at t_r, and the result.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #05060a; --bg2: #0b0d16;
+  --ink: #eef1f8; --muted: #959db2; --faint: #5e6478;
+  --src: #6d7bff; --mu: #b56cff; --tar: #ff6fae;
+  --grad: linear-gradient(90deg, #6d7bff, #b56cff 52%, #ff6fae);
+  --panel: rgba(12, 14, 24, 0.80); --panel-b: rgba(255, 255, 255, 0.09); --hover: rgba(255, 255, 255, 0.07);
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 13px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased; overflow: hidden; }
+#stage { position: relative; width: 100%; height: 100%; overflow: hidden;
+  background: radial-gradient(120% 90% at 50% 40%, var(--bg2) 0%, var(--bg) 70%); }
+#c { position: absolute; inset: 0; width: 100%; height: 100%; display: block; outline: none; touch-action: pan-y; }
+.ghint { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 8px 15px; border-radius: 999px;
+  background: rgba(8, 10, 18, 0.84); border: 1px solid var(--panel-b); color: var(--ink); font-size: 13px; pointer-events: none;
+  opacity: 0; transition: opacity 0.25s; white-space: nowrap; }
+.ghint.on { opacity: 1; }
+#labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+
+/* in-scene labels */
+.lb { position: absolute; left: 0; top: 0; white-space: nowrap; font-size: 12px; line-height: 1.25; padding: 3px 8px;
+  border-radius: 6px; background: rgba(8, 10, 18, 0.80); border: 1px solid var(--panel-b); color: var(--ink);
+  transition: opacity 0.25s; will-change: transform; }
+.lb.major { font-size: 13px; font-weight: 600; padding: 4px 9px; }
+.lb.minor { color: var(--muted); }
+.lb.src { color: #aeb6ff; border-color: rgba(109, 123, 255, 0.45); }
+.lb.tar { color: #ffb3d3; border-color: rgba(255, 111, 174, 0.45); }
+.lb.mu { color: #d7b4ff; border-color: rgba(181, 108, 255, 0.45); }
+.lb.plain { background: transparent; border-color: transparent; color: var(--muted); padding: 0; }
+.n { display: inline-grid; place-items: center; width: 17px; height: 17px; border-radius: 50%; background: var(--grad);
+  color: #05060a; font-size: 10.5px; font-weight: 700; margin-right: 6px; vertical-align: 1px; }
+.m { font-family: var(--mono); font-size: 0.93em; }
+i.v { font-style: italic; font-family: "Times New Roman", "STIX Two Text", serif; font-size: 1.12em; }
+.ss { display: inline-flex; flex-direction: column; vertical-align: 0.5em; font-size: 0.64em; line-height: 0.98; margin-left: 0.04em; font-style: normal; }
+sub, sup { font-size: 0.68em; line-height: 0; }
+.hat { position: relative; display: inline-block; }
+.mv { white-space: nowrap; }
+.hat::after { content: "^"; position: absolute; left: 50%; top: -0.38em; transform: translateX(-42%); font-size: 0.78em; font-style: normal; font-family: var(--sans); }
+.w { padding: 0 4px; border-radius: 4px; font-weight: 500; }
+.w.subj { color: #d7b4ff; background: rgba(181, 108, 255, 0.16); }
+.w.gone { color: #aeb6ff; background: rgba(109, 123, 255, 0.18); text-decoration: line-through; text-decoration-thickness: 1px; }
+.w.new { color: #ffb3d3; background: rgba(255, 111, 174, 0.16); }
+
+/* chrome */
+.top { position: absolute; top: 0; left: 0; right: 0; padding: 12px 14px 0; display: flex; gap: 8px; align-items: flex-start;
+  justify-content: space-between; pointer-events: none; }
+.chips { pointer-events: auto; display: flex; gap: 2px; padding: 4px; background: var(--panel); border: 1px solid var(--panel-b);
+  border-radius: 11px; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); max-width: 100%; overflow-x: auto;
+  scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+button { font: inherit; color: var(--ink); cursor: pointer; }
+.chips button { flex: none; font-size: 12.5px; padding: 5px 10px; border: 0; border-radius: 8px; background: transparent; white-space: nowrap; }
+.chips button:hover { background: var(--hover); }
+.chips button[aria-pressed="true"] { background: var(--grad); color: #05060a; font-weight: 600; }
+.chips button .k { font-family: var(--mono); font-size: 11px; opacity: 0.7; margin-right: 5px; }
+button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--mu); outline-offset: 2px; }
+
+.card { position: absolute; left: 14px; top: 62px; width: 306px; max-width: calc(100% - 28px); max-height: calc(100% - 150px);
+  overflow: auto; background: var(--panel); border: 1px solid var(--panel-b); border-radius: 12px; padding: 0;
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); scrollbar-width: thin; }
+.card summary { list-style: none; cursor: pointer; padding: 9px 14px 8px; display: flex; flex-wrap: wrap; gap: 1px 8px; align-items: baseline; }
+.card summary::-webkit-details-marker { display: none; }
+.card summary .eb { font-family: var(--mono); font-size: 10.5px; color: var(--muted); letter-spacing: 0.03em; flex: 1; order: 0; }
+.card summary .tt { font-weight: 600; font-size: 14px; flex-basis: 100%; min-width: 0; order: 2; }
+.card summary::after { content: "▾"; color: var(--muted); font-size: 11px; transition: transform 0.2s; order: 1; }
+.card:not([open]) summary::after { transform: rotate(-90deg); }
+.card .bd { padding: 0 14px 12px; display: grid; gap: 8px; }
+.card p { margin: 0; color: #d3d8e6; }
+.card .eq { font-family: var(--mono); font-size: 11.5px; color: var(--ink); background: rgba(255, 255, 255, 0.05); border-radius: 6px;
+  padding: 5px 8px; overflow-x: auto; white-space: nowrap; }
+.card .eq .h { display: block; font-family: var(--sans); font-size: 10.5px; color: var(--muted); margin-bottom: 1px; }
+.card .eq .h b { font-weight: 600; color: #d7b4ff; }
+.card .pills { display: flex; flex-wrap: wrap; gap: 5px; }
+.pill { font-size: 11px; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; }
+.card .thumbs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.card figure { margin: 0; display: grid; gap: 3px; min-width: 0; }
+.card figure img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 5px; display: block; background: #000; }
+.card figcaption { font-size: 10.5px; color: var(--muted); line-height: 1.3; }
+.card .foot { font-size: 11px; color: var(--faint); }
+.card .pr { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; font-size: 12px; }
+.card .pr span:nth-child(odd) { font-family: var(--mono); font-size: 10.5px; color: var(--faint); padding-top: 2px; }
+
+.bar { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); width: min(540px, calc(100% - 28px));
+  background: var(--panel); border: 1px solid var(--panel-b); border-radius: 12px; padding: 5px 9px 7px;
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); display: grid; gap: 6px; }
+.row { display: flex; gap: 8px; align-items: center; }
+.row button { border: 0; background: transparent; border-radius: 7px; padding: 3px 8px; font-size: 13px; line-height: 1.3; }
+.row button:hover { background: var(--hover); }
+#play { min-width: 4.6em; border: 1px solid var(--panel-b); }
+#step { flex: 1; min-width: 60px; accent-color: var(--mu); }
+#tval { font-family: var(--mono); font-size: 11.5px; color: var(--muted); min-width: 15.5em; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.nfe { display: flex; gap: 8px; align-items: center; }
+.cells { flex: 1; display: grid; grid-template-columns: repeat(38, minmax(0, 1fr)); gap: 2px; }
+.cell { height: 7px; border-radius: 2px; opacity: 0.22; }
+.cell.on { opacity: 1; }
+.cell.p { background: var(--mu); } .cell.s { background: var(--src); } .cell.t { background: var(--tar); } .cell.r { background: #e9ecf6; }
+#nfecount { font-family: var(--mono); font-size: 11px; color: var(--muted); white-space: nowrap; min-width: 6.6em; text-align: right; }
+.hint { position: absolute; right: 14px; bottom: 14px; font-size: 11px; color: var(--faint); pointer-events: none; text-align: right; }
+#err { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 14px; padding: 24px; text-align: center; }
+#err[hidden] { display: none; }
+
+@media (max-width: 1040px) { .hint { display: none; } }
+@media (max-width: 640px) {
+  .card { top: auto; bottom: 86px; width: auto; right: 14px; max-height: 42%; }
+}
+@media (max-width: 640px), (max-height: 520px) {
+  .lb { font-size: 11px; } .lb.major { font-size: 11.5px; }
+  .lb.minor { display: none; }
+  #tval { min-width: 0; }
+}
+@media (max-width: 420px) { #tval { display: none; } }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="c" aria-label="3D walkthrough of one UltraEdit edit: source image, attention probes, region, coupled source and target paths, shared keys and values, result"></canvas>
+  <div id="labels" aria-hidden="true"></div>
+
+  <div class="top">
+    <div class="chips" id="chips" role="group" aria-label="Stage"></div>
+  </div>
+
+  <details class="card" id="card">
+    <summary><span class="eb" id="cardEb"></span><span class="tt" id="cardTt"></span></summary>
+    <div class="bd" id="cardBd" aria-live="polite"></div>
+  </details>
+
+  <div class="bar" role="group" aria-label="Denoising steps">
+    <div class="row">
+      <button type="button" id="prev" aria-label="Previous step">‹</button>
+      <button type="button" id="play" aria-pressed="false">▶ Play</button>
+      <button type="button" id="next" aria-label="Next step">›</button>
+      <input id="step" type="range" min="0" max="16" value="0" step="1" aria-label="Denoising step">
+      <span id="tval"></span>
+    </div>
+    <div class="nfe" title="Network calls: violet = probes, blue = source call, pink = target call, white = the step at t_r evaluated again"><div class="cells" id="cells" aria-hidden="true"></div><span id="nfecount"></span></div>
+  </div>
+  <div class="hint">Drag to rotate · Ctrl/⌘ + scroll or pinch to zoom · right-drag to pan<br>Space: play · ←/→: step</div>
+  <div class="ghint" id="ghint" aria-live="polite"></div>
+  <div id="err" hidden>The 3D view needs WebGL and three.js. Check your connection and reload.</div>
+</div>
+
+<script src="media/method3d/scene.js"></script>
+<script>/* opened from disk: WebGL refuses file:// images, so load the same textures as data URIs */
+if (location.protocol === 'file:') document.write('<script src="media/method3d/textures.js"><\/script>');</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function () {
+  'use strict';
+  const D = window.M3D;
+  const $ = (s) => document.querySelector(s);
+  function fail() { $('#err').hidden = false; }
+  if (!D || !window.THREE || !THREE.OrbitControls) { fail(); return; }
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas: $('#c'), antialias: true }); } catch (e) { fail(); return; }
+
+  const E = D.entries, AT = D.atlas, NE = E.length, stageEl = $('#stage');
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fmt = (x, n = 3) => Number(x).toFixed(n);
+  const pct = (x) => `${Math.round(x * 100)}%`;
+  // math helpers: v('Z','t','src') -> Z with stacked sub / sup
+  const v = (b, sub = '', sup = '', hat = false) => `<span class="mv"><i class="v${hat ? ' hat' : ''}">${b}</i>` + (sub && sup
+    ? `<span class="ss"><span>${sup}</span><span>${sub}</span></span>` : sup ? `<sup>${sup}</sup>` : sub ? `<sub>${sub}</sub>` : '') + '</span>';
+  const XS = v('X', '', 'src'), XT = v('X', '', 'tar'), ZS = v('Z', 't', 'src'), ZT = v('Z', 't', 'tar');
+  const XH = v('x', '', 'tar', true), XHS = v('x', '', 'src', true), DX = `Δ${v('x', 't', '', true)}`, Dt = v('D', 't');
+  const W = D.words;
+  const word = (cls, s) => `<span class="w ${cls}">${s}</span>`;
+  const prompt = (segs) => segs.map(([t, c]) => (c ? word(c, t) : t)).join('');
+
+  // ---------------------------------------------------------------- scene
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.Fog('#05060a', 30, 56);
+  const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 140);
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true; controls.dampingFactor = 0.08; controls.minDistance = 2; controls.maxDistance = 160;
+  // scroll-through embed (like an embedded map): plain wheel and one-finger drags scroll the page; OrbitControls
+  // never zooms on the wheel (so it never calls preventDefault on it); Ctrl/⌘ + wheel and two fingers move the view
+  controls.enableZoom = false;
+  controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_ROTATE };
+
+  const loader = new THREE.TextureLoader();
+  const tex = (url) => { const t = loader.load((window.M3D_TEX && window.M3D_TEX[url]) || url); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t; };
+  const atlas = {}; Object.keys(AT.files).forEach((k) => { atlas[k] = tex(AT.files[k]); });
+  const imgMat = (t, color) => new THREE.MeshBasicMaterial({ map: t, side: THREE.DoubleSide, toneMapped: false, color: color || 0xffffff });
+  const layerMat = (t, op = 0.92) => new THREE.MeshBasicMaterial({ map: t, transparent: true, opacity: op, depthWrite: false, side: THREE.DoubleSide, toneMapped: false });
+  function setUV(g, e) {
+    const c = e % AT.cols, r = Math.floor(e / AT.cols), uv = g.attributes.uv;
+    for (let i = 0; i < uv.count; i++) {
+      const u = i % 2, vv = i < 2 ? 1 : 0;            // PlaneGeometry order: (0,1) (1,1) (0,0) (1,0)
+      uv.setXY(i, (c + u) / AT.cols, 1 - (r + 1 - vv) / AT.rows);
+    }
+    uv.needsUpdate = true;
+  }
+  const tileGeom = (w, h, e) => { const g = new THREE.PlaneGeometry(w, h); setUV(g, e); return g; };
+  function framed(mesh, w, h, color, pad = 0.05) {
+    const g = new THREE.Group();
+    const f = new THREE.Mesh(new THREE.PlaneGeometry(w + 2 * pad, h + 2 * pad), new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide }));
+    f.position.z = -0.012; g.add(f); g.add(mesh); g.userData.frame = f; g.userData.img = mesh; return g;
+  }
+  function line(points, color, opacity = 1) {
+    const g = new THREE.BufferGeometry().setFromPoints(points.map((p) => new THREE.Vector3(...p)));
+    return new THREE.Line(g, new THREE.LineBasicMaterial({ color, transparent: opacity < 1, opacity }));
+  }
+  function arrow(a, b, color) {
+    const grp = new THREE.Group();
+    grp.add(line([a, b], color, 0.75));
+    const cone = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.28, 14), new THREE.MeshBasicMaterial({ color }));
+    const d = new THREE.Vector3(b[0] - a[0], b[1] - a[1], b[2] - a[2]).normalize();
+    cone.position.set(...b); cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d); grp.add(cone);
+    return grp;
+  }
+  const C = { src: '#6d7bff', tar: '#ff6fae', mu: '#b56cff', ink: '#eef1f8', card: '#2a2f45', link: '#4b5170', out: '#ff6fae' };
+
+  // labels (HTML, projected every frame)
+  const labels = [];
+  let narrowMode = null;   // short label texts on narrow frames (set by measure)
+  // opt.short: shorter text on narrow frames; priority: major > normal > minor / plain (used by the declutter pass)
+  function label(html, pos, cls = '', opt = {}) {
+    const el = document.createElement('div'); el.className = 'lb ' + cls; el.innerHTML = html; $('#labels').appendChild(el);
+    const prio = /major/.test(cls) ? 3 : /minor|plain/.test(cls) ? 1 : 2;
+    const L = Object.assign({ el, full: html, pos: new THREE.Vector3(...pos), near: 0, show: true, prio, w: 0, h: 0 }, opt);
+    labels.push(L); return L;
+  }
+
+  const grid = new THREE.GridHelper(72, 72, '#141726', '#0b0d15'); grid.position.set(0, -1.62, -4); scene.add(grid);
+
+  // 1 source image
+  const S = 2.4, SX = -17.0;   // stations spread along x (11-21: overview less crowded)
+  const srcCard = framed(new THREE.Mesh(new THREE.PlaneGeometry(S, S), imgMat(tex(D.src))), S, S, '#c9cfe6', 0.04);
+  srcCard.position.set(SX, 0, 0); scene.add(srcCard);
+  label(`Source image ${XS}`, [SX, 1.56, 0], '', { short: XS, near: 20 });
+  label(`no mask · no inversion`, [SX, -1.25 - 0.32, 0], 'minor', { near: 16 });
+
+  // 2 probes with exploded word-attention layers
+  const PX = -11.8, PS = 2.05;
+  const groups = [['subj', C.mu, W.subj], ['gone', C.src, W.gone], ['new', C.tar, W.new]];
+  D.probes.forEach((p, k) => {
+    const y = k === 0 ? 1.22 : -1.22;
+    const base = framed(new THREE.Mesh(new THREE.PlaneGeometry(PS, PS), imgMat(tex(p.img))), PS, PS, '#3a4060', 0.035);
+    base.position.set(PX, y, 0); scene.add(base);
+    label(`noised source <span class="m">t = ${p.t}</span>`, [PX - 0.25, y - PS / 2 - 0.05, 0], 'minor', { near: 14 });
+    groups.forEach(([g, col, txt], j) => {
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(PS, PS), layerMat(tex(p.layers[g]), 0.95));
+      const z = 0.5 * (j + 1), x = PX + 0.16 * (j + 1), h = PS / 2;
+      m.position.set(x, y, z); scene.add(m);
+      scene.add(line([[x - h, y - h, z], [x + h, y - h, z], [x + h, y + h, z], [x - h, y + h, z], [x - h, y - h, z]], col, 0.8));
+      if (k === 0) label(word(g, txt), [x + h + 0.08, y + h - 0.1 - 0.42 * j, z], 'plain', { near: 15 });
+    });
+  });
+  label(`<span class="n">1</span>Attention probes · <span class="m">4</span> calls`, [PX + 0.3, 2.75, 0.6], 'major mu', { short: '<span class="n">1</span>Probes', station: true });
+
+  // 3 region mu0
+  const MX = -6.6;
+  const muBase = framed(new THREE.Mesh(new THREE.PlaneGeometry(S, S), imgMat(tex(D.src), '#6c7286')), S, S, C.mu, 0.04);
+  muBase.position.set(MX, 0, 0); scene.add(muBase);
+  const muLayer = new THREE.Mesh(new THREE.PlaneGeometry(S, S), layerMat(tex(D.mu0), 1)); muLayer.position.set(MX, 0, 0.35); scene.add(muLayer);
+  label(`<span class="n">2</span>Attention-adaptive region μ<sub>0</sub> · <span class="m">${pct(D.region.mu0)}</span>`, [MX, 1.62, 0.2], 'major mu', { short: '<span class="n">2</span>μ<sub>0</sub>', station: true });
+  label(`inside μ: start at <span class="m">τ = 1</span> · outside: <span class="m">τ = t<sub>0</sub></span>`, [MX, -1.62, 0.35], 'minor', { near: 14 });
+
+  scene.add(arrow([SX + 1.45, -1.5, 0.2], [PX - 1.35, -1.5, 0.2], C.link));
+  scene.add(arrow([PX + 1.75, -1.5, 0.2], [MX - 1.45, -1.5, 0.2], C.link));
+
+  // 4 lanes: depth is t, to scale
+  const zOf = (t) => -1.3 - 9 * t;
+  const LX = 0.6, TX = 4.6, CS = 1.8;
+  scene.add(arrow([MX + 1.45, -1.5, -0.2], [LX - 1.05, -1.5, zOf(0) - 0.4], C.link));
+  // lane A: the current edit X_src + D_t at the start of each step (X_src at t = 1, X_tar at t = 0);
+  // lane B: the target copy's clean estimate x^tar of each step
+  const slices = E;
+  const sliceOf = (e) => e;
+  const LANE_B = '#8d93ab';
+  const laneS = [], laneT = [], links = [];
+  slices.forEach((e) => {
+    const z = zOf(e.t);
+    const s = framed(new THREE.Mesh(tileGeom(CS, CS, e.e), imgMat(atlas.zfe)), CS, CS, C.tar, 0.035);
+    s.position.set(LX, 0, z); scene.add(s); laneS.push(s);
+    const t = framed(new THREE.Mesh(tileGeom(CS, CS, e.e), imgMat(atlas.x0t)), CS, CS, LANE_B, 0.035);
+    t.position.set(TX, 0, z); scene.add(t); laneT.push(t);
+    const l = line([[LX + CS / 2, 0, z], [TX - CS / 2, 0, z]], C.mu, 0.25); scene.add(l); links.push(l);
+  });
+  const outLane = framed(new THREE.Mesh(new THREE.PlaneGeometry(CS, CS), imgMat(tex(D.out))), CS, CS, '#ffd0e4', 0.035);
+  outLane.position.set(LX, 0, zOf(0)); scene.add(outLane);
+  // time planes: t0 (outside mu starts) and t_r (mu fixed, scaling back)
+  function tPlane(t, color, op) {
+    const p = new THREE.Mesh(new THREE.PlaneGeometry(TX - LX + CS + 0.9, 2.5), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: op, side: THREE.DoubleSide, depthWrite: false }));
+    p.position.set((LX + TX) / 2, 0, zOf(t)); scene.add(p);
+    const h = (TX - LX + CS + 0.9) / 2, x = (LX + TX) / 2, z = zOf(t);
+    scene.add(line([[x - h, -1.25, z], [x + h, -1.25, z], [x + h, 1.25, z], [x - h, 1.25, z], [x - h, -1.25, z]], color, 0.5));
+  }
+  tPlane(D.t0, '#959db2', 0.05);
+  tPlane(D.t_r, C.mu, 0.10);
+  label(`<span class="m">t<sub>0</sub> = ${D.t0}</span> · outside μ starts: Fresh Noise + Euler`, [(LX + TX) / 2, -1.5, zOf(D.t0)], 'minor', { near: 19 });
+  label(`<span class="n">5</span>Scaling back the edit where the copies agree · <span class="m">t<sub>r</sub> = ${D.t_r}</span>`, [(LX + TX) / 2, -1.5, zOf(D.t_r)], 'major mu', { short: `<span class="n">5</span><span class="m">t<sub>r</sub> = ${D.t_r}</span>`, station: true });
+  label(`<span class="n">3</span>Spatially adaptive coupling · <span class="m">2</span> calls per step`, [(LX + TX) / 2, 1.95, zOf(1)], 'major', { short: '<span class="n">3</span>Coupling', station: true });
+  label(`Current edit ${XS} + ${Dt}`, [LX, 1.3, zOf(1)], 'tar', { near: 24, short: `${XS} + ${Dt}` });
+  label(`Target clean estimate ${XH}`, [TX, 1.3, zOf(1)], '', { near: 24, short: XH });
+  label(`starts at ${XS} (D = 0)`, [LX - CS / 2 - 0.15, 0.2, zOf(0.97)], 'minor', { near: 15 });
+  [[1, 't = 1'], [0.5, 't = 0.5'], [0, 't = 0']].forEach(([t, s]) =>
+    label(`<span class="m">${s}</span>`, [LX - CS / 2 - 0.2, -1.05, zOf(t)], 'plain', { near: 20 }));
+  label(`${XT}`, [LX, -1.2, zOf(0)], 'plain', { near: 16 });
+
+  // current step, pulled out to the right of lane B: x^tar (+ mu), X^src + D (+ omega at t_r)
+  const FC = 1.9;
+  const focus = new THREE.Group(); scene.add(focus);
+  const fX = framed(new THREE.Mesh(tileGeom(FC, FC, 0), imgMat(atlas.x0t)), FC, FC, '#e9ecf6', 0.045);
+  const fMu = new THREE.Mesh(tileGeom(FC, FC, 0), layerMat(atlas.mu, 0.95));
+  const fZ = framed(new THREE.Mesh(tileGeom(FC, FC, 0), imgMat(atlas.zfe)), FC, FC, C.tar, 0.045);
+  const fW = new THREE.Mesh(new THREE.PlaneGeometry(FC, FC), layerMat(tex(D.omega), 1));
+  fX.position.set(0, 0, 0); fMu.position.set(0, 0, 0.3); fZ.position.set(2.55, 0, 0); fW.position.set(2.55, 0, 0.3);
+  focus.add(fX, fMu, fZ, fW);
+  const pull = line([[0, 0, 0], [1, 0, 0]], '#7c83a3', 0.6); scene.add(pull);
+  const fl = [label(`${XH} with region μ`, [0, 0, 0], '', { short: `${XH} · μ` }), label(`${XS} + ${Dt} at this step`, [0, 0, 0], 'tar', { short: `${XS} + ${Dt}` })];
+  const wl = label(`ω: scaled back toward the source`, [0, 0, 0], 'src', { short: 'ω' });
+
+  // 5 shared keys and values: 57 blocks per call, 13 shared (behind the region station)
+  const SH = D.share, sharedSet = new Set(SH.layers);
+  const AX = -5.4, AZ = -10.4, SXX = AX - 1.5, TXX = AX + 1.5, BH = 0.075, GAP = 0.1, Y0 = -1.2;
+  const beams = [];
+  function slab(x, g, on, col) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(on ? 1.5 : 1.25, BH, on ? 0.9 : 0.72),
+      new THREE.MeshBasicMaterial({ color: on ? col : (g < 19 ? '#262b44' : '#1b1f33') }));
+    m.position.set(x, Y0 + g * GAP, AZ); scene.add(m); return m;
+  }
+  for (let g = 0; g < 57; g++) {
+    const on = sharedSet.has(g);
+    slab(SXX, g, on, C.src); slab(TXX, g, on, C.tar);
+    if (on) {
+      const y = Y0 + g * GAP;
+      scene.add(line([[SXX + 0.75, y, AZ], [TXX - 0.75, y, AZ]], C.mu, 0.85));
+      const dot = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 8), new THREE.MeshBasicMaterial({ color: '#f0e2ff' }));
+      dot.position.set(SXX + 0.75, y, AZ); scene.add(dot); beams.push({ dot, ph: (g * 0.37) % 1 });
+    }
+  }
+  const TOP = Y0 + 56 * GAP;
+  label(`<span class="n">4</span>Shared keys and values · <span class="m">${SH.layers.length}</span> blocks · no extra calls`, [AX, TOP + 0.95, AZ], 'major mu', { short: '<span class="n">4</span>Shared K, V', station: true });
+  label('Source call', [SXX, TOP + 0.3, AZ], 'src', { near: 26 });
+  label('Target call', [TXX, TOP + 0.3, AZ], 'tar', { near: 26 });
+  label('source K, V → target queries', [AX, Y0 + 45 * GAP + 0.06, AZ], 'minor mu', { near: 18 });
+  label('single-stream blocks', [SXX - 1.15, Y0 + 40 * GAP, AZ], 'minor', { near: 18 });
+  label('double-stream blocks', [SXX - 1.15, Y0 + 10 * GAP, AZ], 'minor', { near: 18 });
+
+  // 6 result
+  const FXR = 15.4;
+  const outCard = framed(new THREE.Mesh(new THREE.PlaneGeometry(2.3, 2.3), imgMat(tex(D.out))), 2.3, 2.3, '#ffd0e4', 0.04);
+  outCard.position.set(FXR, 1.25, 0.4); scene.add(outCard);
+  const diffCard = framed(new THREE.Mesh(new THREE.PlaneGeometry(2.3, 2.3), imgMat(tex(D.change))), 2.3, 2.3, '#3a4060', 0.04);
+  diffCard.position.set(FXR, -1.3, 0.4); scene.add(diffCard);
+  const resLabels = [label(`<span class="n">6</span>Result ${XT} = ${XS} + D`, [FXR, 2.66, 0.4], 'major tar', { short: `<span class="n">6</span>${XT}`, station: true }),
+                     label(`|${XT} − ${XS}|`, [FXR, -2.72, 0.4], 'minor', { near: 16 })];
+  scene.add(arrow([TX + 1.15, -1.5, zOf(0)], [FXR - 1.45, -1.5, 0.3], C.link));
+
+  // ---------------------------------------------------------------- step state
+  let cur = 6, stage = 'all';
+  const stepNo = (e) => sliceOf(e) + 1;
+  function setStep(e, moveCam) {
+    cur = Math.max(0, Math.min(NE - 1, e));
+    const en = E[cur], si = sliceOf(cur);
+    laneT.forEach((g, i) => {
+      const on = i === si;
+      g.userData.frame.material.color.set(on ? '#ffffff' : LANE_B);
+      laneS[i].userData.frame.material.color.set(on ? '#ffe0ee' : C.tar);
+      links[i].material.opacity = on ? 1 : 0.25;
+      const ee = on ? cur : slices[i].e;
+      setUV(g.userData.img.geometry, ee); setUV(laneS[i].userData.img.geometry, ee);
+    });
+    const z = zOf(en.t), fx = TX + 2.45;
+    focus.position.set(fx, 0.35, z);
+    setUV(fX.userData.img.geometry, cur); setUV(fMu.geometry, cur); setUV(fZ.userData.img.geometry, cur);
+    pull.geometry.setFromPoints([new THREE.Vector3(TX + CS / 2, 0, z), new THREE.Vector3(fx - FC / 2, 0.35, z)]);
+    fl[0].pos.set(fx, 0.35 + FC / 2 + 0.1, z); fl[1].pos.set(fx + 2.55, 0.35 + FC / 2 + 0.1, z);
+    wl.pos.set(fx + 2.55, 0.35 - FC / 2 - 0.42, z + 0.3);
+    $('#step').value = cur;
+    const tag = en.phase === 'anchor' ? ' · step at tᵣ' : '';
+    $('#tval').textContent = `step ${String(stepNo(cur)).padStart(2, '0')}/16 · t ${fmt(en.t)} → ${fmt(en.tn)}${tag}`;
+    if (stage === 's3' || stage === 's5') { setNfe(en.nfe); renderCard(); if (moveCam) fly(camFor(stage)); }
+  }
+
+  // ---------------------------------------------------------------- NFE meter
+  const cells = [];
+  const mk = (cls) => { const d = document.createElement('div'); d.className = 'cell ' + cls; $('#cells').appendChild(d); cells.push(d); };
+  for (let i = 0; i < 4; i++) mk('p');
+  E.forEach((e) => { mk('s'); mk('t'); if (e.phase === 'anchor') { mk('r'); mk('r'); } });
+  function setNfe(n) {
+    cells.forEach((c, i) => c.classList.toggle('on', i < n));
+    $('#nfecount').textContent = `NFE ${n} / ${cells.length}`;
+  }
+
+  // ---------------------------------------------------------------- cameras
+  const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
+  let viewDx = 0;
+  function fit(pt, k) { const [p, t] = pt; return [t.clone().add(p.clone().sub(t).multiplyScalar(k)), t]; }
+  function camFor(s) {
+    const r = camRaw(s);
+    // pull back on narrow frames so the whole station row stays in view (the card takes 2 * viewDx px)
+    const eff = Math.max(stageEl.clientWidth - 2 * viewDx, 1) / Math.max(stageEl.clientHeight, 1);
+    const k = s === 'all' ? Math.min(Math.max(1.75 / eff, 1), 3.4) : Math.min(Math.max(1.2 / eff, 1), 1.8);
+    return fit(r, k);
+  }
+  function camRaw(s) {
+    const z = zOf(E[cur].t), fx = TX + 2.45;
+    return {
+      all: [V3(-0.6, 13.5, 30.5), V3(-0.6, -0.9, -4.4)],
+      s1: [V3(PX + 3.6, 2.6, 11.2), V3(PX - 1.0, -0.35, 0.5)],
+      s2: [V3(MX + 1.8, 2.2, 10.2), V3(MX + 0.2, 0.0, 0.2)],
+      s3: [V3(fx + 2.6, 4.2, z + 10.8), V3(fx - 0.2, 0.4, z - 0.4)],
+      s4: [V3(AX - 9.6, 4.6, AZ + 11.0), V3(AX + 0.4, 1.8, AZ)],
+      s5: [V3(fx + 2.6, 4.2, z + 10.8), V3(fx - 0.2, 0.4, z - 0.4)],
+      s6: [V3(FXR - 2.6, 1.2, 11.6), V3(FXR - 0.6, 0.0, 0.4)],
+    }[s];
+  }
+  let tween = null;
+  function fly([p, t]) {
+    if (reduce) { camera.position.copy(p); controls.target.copy(t); controls.update(); return; }
+    tween = { p0: camera.position.clone(), t0: controls.target.clone(), p, t, s: performance.now(), d: 1100 };
+  }
+
+  // ---------------------------------------------------------------- stages and card
+  const STAGES = [['all', 'Overview'], ['s1', 'Probes'], ['s2', 'Region μ'], ['s3', 'Coupling'], ['s4', 'Shared K, V'], ['s5', 'Scaling back the edit where the copies agree'], ['s6', 'Result']];
+  STAGES.forEach(([k, name], i) => {
+    const b = document.createElement('button'); b.type = 'button'; b.dataset.k = k;
+    b.innerHTML = i ? `<span class="k">${i}</span>${name}` : name;
+    b.addEventListener('click', () => { cardEl.open = true; go(k); }); $('#chips').appendChild(b);
+  });
+  const ANCHOR = E.findIndex((e) => e.phase === 'anchor');
+  function go(k) {
+    stage = k;
+    $('#chips').querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.k === k)));
+    if (k === 's5' && E[cur].phase !== 'anchor') { setStep(ANCHOR, false); }
+    const n = { all: 38, s1: 4, s2: 4, s4: E[cur].nfe, s6: 38 }[k];
+    if (k === 's3' || k === 's5') setNfe(E[cur].nfe); else setNfe(n);
+    renderCard(); fly(camFor(k));
+  }
+  const img = (src, cap) => `<figure><img src="${src}" alt="${cap.replace(/<[^>]+>/g, '')}"><figcaption>${cap}</figcaption></figure>`;
+  const EQ_IN = `<span class="h"><b>inside μ</b> · SDE + Posterior</span>D<sub>t′</sub> = a<sub>t</sub>D<sub>t</sub> + b<sub>t</sub>Δ<span class="hat">x</span><sub>t</sub>`;
+  const EQ_OUT = `<span class="h"><b style="color:var(--muted)">outside μ</b> · Fresh Noise + Euler</span>D<sub>t′</sub> = (t′/t)D<sub>t</sub> + (1 − t′/t)Δ<span class="hat">x</span><sub>t</sub>`;
+  function card(eb, tt, html) { $('#cardEb').textContent = eb; $('#cardTt').innerHTML = tt; $('#cardBd').innerHTML = html; }
+  function renderCard() {
+    const en = E[cur];
+    if (stage === 'all') return card('OVERVIEW', 'One real edit, step by step', `
+      <div class="pr"><span>source</span><span>${prompt(D.prompts.src)}</span><span>target</span><span>${prompt(D.prompts.tar)}</span></div>
+      <p>No inversion and no mask. FLUX's own attention selects the region μ that may change. Inside μ, editing starts from pure noise with SDE + Posterior; outside μ, it starts later with Fresh Noise + Euler. Source anchoring shares the source branch's keys and values and scales the edit back once where the two copies agree.</p>
+      <div class="pills"><span class="pill" style="color:var(--mu)">16 steps</span><span class="pill" style="color:var(--src)">${D.nfe_total} NFE</span><span class="pill" style="color:var(--tar)">training-free</span></div>
+      <p class="foot">Images come from this edit's run (FLUX.1-dev, 512², 16 steps); the two probe inputs are shown re-noised. Pick a stage above, or press play.</p>`);
+    if (stage === 's1') return card('STAGE 1 · 4 NFE', 'Attention probes', `
+      <p>Before the first step the source image is noised to <span class="m">t = 0.7</span> and <span class="m">0.5</span>, and the model is called with both prompts at each level.</p>
+      <p>The layers show the cross-attention of image tokens to the subject ${word('subj', W.subj)}, the removed words ${word('gone', W.gone)} (source prompt) and the new words ${word('new', W.new)} (target prompt).</p>`);
+    if (stage === 's2') return card('STAGE 2', 'Attention-adaptive region μ', `
+      <p>μ<sub>0</sub> thresholds the attention maps of the subject and the edit-related words: <span class="m">${pct(D.region.mu0)}</span> of this image. Tokens in μ start editing at <span class="m">τ = 1</span>; the rest at <span class="m">t<sub>0</sub> = ${D.t0}</span>.</p>
+      <p>In the early expansion phase (<span class="m">t &gt; t<sub>r</sub></span>), μ expands to neighbouring tokens that the target attends to; new tokens switch to SDE + Posterior from the next step. From <span class="m">t<sub>r</sub> = ${D.t_r}</span> on, μ is fixed (<span class="m">${pct(D.region.mu_final)}</span>).</p>`);
+    if (stage === 's4') return card('STAGE 4 · 0 extra NFE', 'Shared keys and values', `
+      <p>In ${SH.layers.length} selected attention blocks, the target's image queries attend to the source branch's keys and values. The source call runs at every step anyway, so this adds no calls.</p>
+      <p>These features come directly from the source branch that the coupling already uses, so the target keeps the subject's identity and appearance.</p>`);
+    if (stage === 's6') return card('STAGE 6', 'Result', `
+      <p>${XT} = ${XS} + D after 16 steps. ${D.notes.result}</p>
+      <div class="thumbs">${img(D.src, `Source ${XS}`)}${img(D.out, `Result ${XT}`)}${img(D.change, `|${XT} − ${XS}|`)}</div>
+      <p><span class="m">${D.nfe_total}</span> network calls: 4 probes, 16 steps × 2 copies, and 2 to evaluate the step at t<sub>r</sub> again.</p>`);
+    // s3 / s5: step-dependent
+    const anchor = en.phase === 'anchor';
+    const pills = `<div class="pills"><span class="pill" style="color:${en.phase === 'layout' ? 'var(--mu)' : en.phase === 'anchor' ? 'var(--src)' : 'var(--muted)'}">${en.phase === 'layout' ? 'expansion phase · μ expands' : en.phase === 'anchor' ? 'step at t<sub>r</sub>' : 'detail step · μ fixed'}</span>${en.started_out ? '<span class="pill" style="color:var(--muted)">outside μ editing</span>' : '<span class="pill" style="color:var(--muted)">outside μ: D = 0</span>'}<span class="pill" style="color:var(--muted)">μ ${pct(en.mu_frac)}</span></div>`;
+    if (stage === 's5') {
+      const body = `<p>At the first step with <span class="m">t ≤ t<sub>r</sub> = ${D.t_r}</span>, the clean estimates of the two copies are compared inside μ, on the scale of their typical difference outside μ. Where they agree, the edit is scaled back once:</p>
+           <div class="eq">D ← (1 − ω) ⊙ D</div>
+           <p>Blue overlay = ω on the current edit before this step: ${D.notes.omega} (mean ω over μ: <span class="m">${fmt(D.agree.mean_omega_in_mu, 2)}</span>). These tokens stay in μ and keep the posterior update; the step is then evaluated again (<span class="m">2</span> more calls). Press › to see the state after it.</p>`;
+      return card(`STAGE 5 · STEP ${stepNo(cur)}/16`, 'Scaling back the edit where the copies agree', pills + body);
+    }
+    let note;
+    if (anchor) note = 'First step with t ≤ t<sub>r</sub>: scaling back the edit where the copies agree (stage 5), then the step is evaluated again.';
+    else if (en.phase === 'layout') note = en.started_out
+      ? 'Expansion phase. μ expands where the target attends to the subject or new words (white: tokens that just joined).'
+      : `Expansion phase. Only tokens in μ edit so far; outside μ, D stays 0 until <span class="m">t<sub>0</sub> = ${D.t0}</span>, so both inputs coincide there.`;
+    else note = cur === NE - 1 ? `Last step. The output is ${XT} = ${XS} + D.` : 'Detail step. μ is fixed; both update rules keep refining the edit.';
+    card(`STAGE 3 · STEP ${stepNo(cur)}/16`, 'Spatially adaptive coupling', `${pills}
+      <p>Both copies are called, on ${ZS} and ${ZT} = ${ZS} + ${Dt}; ${DX} = ${XH} − ${XHS} is the difference of their clean estimates.</p>
+      <div class="eq">${EQ_IN}</div>
+      <div class="eq">${EQ_OUT}</div>
+      <p>${note}</p>
+      <p class="foot">Network-call bar: <span style="color:var(--mu)">■</span> probes · <span style="color:var(--src)">■</span> source call · <span style="color:var(--tar)">■</span> target call · <span style="color:#e9ecf6">■</span> step at t<sub>r</sub> evaluated again.</p>`);
+  }
+
+  // ---------------------------------------------------------------- controls
+  const stepEl = $('#step'); stepEl.max = NE - 1;
+  function onStep(e, moveCam) {
+    if (!(stage === 's3' || stage === 's4' || (stage === 's5' && E[Math.max(0, Math.min(NE - 1, e))].phase === 'anchor'))) go('s3');
+    setStep(e, moveCam);
+  }
+  stepEl.addEventListener('input', () => onStep(+stepEl.value, true));
+  $('#prev').addEventListener('click', () => onStep(cur - 1, true));
+  $('#next').addEventListener('click', () => onStep(cur + 1, true));
+  let timer = null;
+  const playBtn = $('#play');
+  function stop() { clearInterval(timer); timer = null; playBtn.textContent = '▶ Play'; playBtn.setAttribute('aria-pressed', 'false'); }
+  function play() {
+    if (timer) return stop();
+    if (stage !== 's3' && stage !== 's4') go('s3');
+    if (cur >= NE - 1) setStep(0, true);
+    playBtn.textContent = '❚❚ Pause'; playBtn.setAttribute('aria-pressed', 'true');
+    timer = setInterval(() => { if (cur >= NE - 1) return stop(); setStep(cur + 1, true); }, reduce ? 1700 : 1300);
+  }
+  playBtn.addEventListener('click', play);
+  window.addEventListener('keydown', (ev) => {
+    if (ev.target && (ev.target.tagName === 'INPUT' || ev.target.tagName === 'BUTTON' && ev.key === ' ')) return;
+    if (ev.key === ' ') { ev.preventDefault(); play(); }
+    else if (ev.key === 'ArrowRight') { onStep(cur + 1, true); }
+    else if (ev.key === 'ArrowLeft') { onStep(cur - 1, true); }
+  });
+  controls.addEventListener('start', () => { tween = null; });
+
+  // ---------------------------------------------------------------- scroll-through wheel and touch
+  const hintEl = $('#ghint'), cv = renderer.domElement;
+  const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent || '');
+  let hintT = 0, hintLast = 0;
+  function hint(msg) {
+    const now = performance.now();
+    if (hintEl.classList.contains('on') && hintEl.textContent === msg && now - hintLast < 900) return;
+    hintLast = now; hintEl.textContent = msg; hintEl.classList.add('on');
+    clearTimeout(hintT); hintT = setTimeout(() => hintEl.classList.remove('on'), 1200);
+  }
+  function dolly(scale) {
+    const off = camera.position.clone().sub(controls.target);
+    off.setLength(Math.min(Math.max(off.length() * scale, controls.minDistance), controls.maxDistance));
+    camera.position.copy(controls.target).add(off);
+  }
+  cv.addEventListener('wheel', (ev) => {
+    if (ev.ctrlKey || ev.metaKey) {            // Ctrl/⌘ + wheel, and trackpad pinch (arrives as a ctrlKey wheel)
+      ev.preventDefault(); tween = null;
+      const dy = ev.deltaMode === 1 ? ev.deltaY * 16 : ev.deltaMode === 2 ? ev.deltaY * 400 : ev.deltaY;
+      dolly(Math.exp(Math.max(-60, Math.min(60, dy)) * 0.004));
+    } else {
+      hint(isMac ? '⌘ + scroll to zoom' : 'Ctrl + scroll to zoom');   // not captured: the page scrolls
+    }
+  }, { passive: false });
+  // touch: one finger never reaches OrbitControls (no preventDefault, so the page scrolls; canvas touch-action: pan-y);
+  // two fingers rotate and pinch-zoom
+  stageEl.addEventListener('touchstart', (ev) => {
+    if (ev.target !== cv) return;
+    if (ev.touches.length < 2) ev.stopPropagation(); else controls.enableZoom = true;
+  }, { capture: true, passive: true });
+  stageEl.addEventListener('touchmove', (ev) => {
+    if (ev.target !== cv || ev.touches.length >= 2) return;
+    ev.stopPropagation(); hint('Use two fingers to move the view');
+  }, { capture: true, passive: true });
+  stageEl.addEventListener('touchend', (ev) => { if (ev.touches.length < 2) controls.enableZoom = false; }, { capture: true, passive: true });
+  window.__m3d = { dist: () => camera.position.distanceTo(controls.target), stage: () => stage };   // used by the page tests
+
+  // ---------------------------------------------------------------- render loop
+  const tmp = new THREE.Vector3();
+  const cardEl = $('#card');
+  // keep the scene centred in the space right of the info card (wide frames only; narrow frames put the card below)
+  function resize() {
+    const w = stageEl.clientWidth, h = Math.max(stageEl.clientHeight, 1);
+    renderer.setSize(w, h, false); camera.aspect = w / h;
+    const dx = (w > 640 && h > 520 && cardEl.open) ? Math.round((cardEl.offsetWidth + 14) / 2) : 0;
+    viewDx = dx;
+    if (dx) camera.setViewOffset(w, h, -dx, 0, w, h); else camera.clearViewOffset();
+    camera.updateProjectionMatrix();
+    measure();
+  }
+  if (stageEl.clientWidth <= 640 || stageEl.clientHeight <= 520) cardEl.open = false;
+  new ResizeObserver(resize).observe(stageEl); resize();
+  cardEl.addEventListener('toggle', resize);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { narrowMode = null; measure(); });
+  // labels: short text on narrow frames; a declutter pass places them by priority (then nearest first), lifting a
+  // label up to three rows when it would cover one already placed, and hiding it if it still collides
+
+  function measure() {
+    const narrow = stageEl.clientWidth < 700;
+    if (narrow !== narrowMode) { narrowMode = narrow; for (const L of labels) L.el.innerHTML = narrow && L.short ? L.short : L.full; }
+    for (const L of labels) { L.w = L.el.offsetWidth; L.h = L.el.offsetHeight; }
+  }
+  const sy = (a, b) => a.x < b.x + b.w + 3 && b.x < a.x + a.w + 3 && a.y < b.y + b.h + 2 && b.y < a.y + a.h + 2;
+  function updateLabels() {
+    const w = stageEl.clientWidth, h = stageEl.clientHeight, cand = [];
+    for (const L of labels) {
+      tmp.copy(L.pos);
+      L.dist = camera.position.distanceTo(tmp);
+      tmp.project(camera);
+      L.sx = (tmp.x * 0.5 + 0.5) * w; L.sy = (-tmp.y * 0.5 + 0.5) * h;
+      const vis = L.show && L.w > 0 && (stage !== 'all' || L.station) && tmp.z < 1 && Math.abs(tmp.x) < 1.05 && Math.abs(tmp.y) < 1.05 && (!L.near || L.dist < L.near);
+      if (vis) cand.push(L); else L.el.style.opacity = 0;
+    }
+    cand.sort((a, b) => b.prio - a.prio || a.dist - b.dist);
+    const placed = [];
+    for (const L of cand) {
+      let r = null;
+      for (let k = 0; k < 4 && !r; k++) {
+        const box = { x: Math.min(Math.max(L.sx - L.w / 2, 4), w - L.w - 4), y: L.sy - L.h - k * (L.h + 3), w: L.w, h: L.h };
+        if (!placed.some((p) => sy(p, box))) r = box;
+      }
+      if (!r) { L.el.style.opacity = 0; continue; }
+      placed.push(r);
+      L.el.style.opacity = 1;
+      L.el.style.transform = `translate(${r.x}px, ${r.y}px)`;
+    }
+  }
+  let visible = true;
+  if ('IntersectionObserver' in window) new IntersectionObserver((es) => { visible = es[0].isIntersecting; }).observe(stageEl);
+  function frame(now) {
+    requestAnimationFrame(frame);
+    if (!visible || document.hidden) return;
+    if (tween) {
+      const k = Math.min(1, (now - tween.s) / tween.d), e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+      camera.position.lerpVectors(tween.p0, tween.p, e); controls.target.lerpVectors(tween.t0, tween.t, e);
+      if (k >= 1) tween = null;
+    }
+    const st = stage === 's3' || stage === 's5';
+    focus.visible = st; pull.visible = st; fl.forEach((L) => { L.show = st; });
+    outCard.visible = diffCard.visible = !st; resLabels.forEach((L) => { L.show = !st; });   // out of the way of the step view
+    fW.visible = st && E[cur].phase === 'anchor'; wl.show = fW.visible;
+    if (!reduce) for (const b of beams) { const k = ((now / 1700) + b.ph) % 1; b.dot.position.x = SXX + 0.75 + k * (TXX - SXX - 1.5); }
+    controls.update();
+    const dist = camera.position.distanceTo(controls.target);   // fog follows the zoom level
+    scene.fog.near = dist * 0.95; scene.fog.far = dist * 2.1;
+    renderer.render(scene, camera); updateLabels();
+  }
+  const [p0, t0] = camFor('all'); camera.position.copy(p0); controls.target.copy(t0);
+  setStep(cur, false);
+  go('all');
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+window.UE = window.UE || {};
+UE.heroAV = [
+ {
+  "kind": "video",
+  "src": "media/vid/hero/cat_lying_down_src.mp4",
+  "out": "media/vid/hero/cat_lying_down_out.mp4",
+  "poster_src": "media/vid/hero/cat_lying_down_src.jpg",
+  "poster_out": "media/vid/hero/cat_lying_down_out.jpg",
+  "mask": "media/vid/hero/cat_lying_down_mask.png",
+  "task": "pose",
+  "label": "lying down",
+  "w": 480,
+  "h": 480,
+  "fps": 16,
+  "frames": 33
+ },
+ {
+  "kind": "video",
+  "src": "media/vid/hero/burnout_rider_hologram_src.mp4",
+  "out": "media/vid/hero/burnout_rider_hologram_out.mp4",
+  "poster_src": "media/vid/hero/burnout_rider_hologram_src.jpg",
+  "poster_out": "media/vid/hero/burnout_rider_hologram_out.jpg",
+  "mask": "media/vid/hero/burnout_rider_hologram_mask.png",
+  "task": "material",
+  "label": "hologram",
+  "w": 480,
+  "h": 480,
+  "fps": 16,
+  "frames": 41
+ },
+ {
+  "kind": "video",
+  "src": "media/vid/hero/blackswan_white_duck_src.mp4",
+  "out": "media/vid/hero/blackswan_white_duck_out.mp4",
+  "poster_src": "media/vid/hero/blackswan_white_duck_src.jpg",
+  "poster_out": "media/vid/hero/blackswan_white_duck_out.jpg",
+  "mask": "media/vid/hero/blackswan_white_duck_mask.png",
+  "task": "swap",
+  "label": "white duck",
+  "w": 480,
+  "h": 480,
+  "fps": 16,
+  "frames": 33
+ },
+ {
+  "kind": "3d",
+  "src": "media/3d/man/source.mp4",
+  "out": "media/3d/man/arms_up.mp4",
+  "poster_src": "media/3d/man/source.jpg",
+  "poster_out": "media/3d/man/arms_up.jpg",
+  "mask": "media/3d/hero/man_arms_up_mask.png",
+  "task": "pose",
+  "label": "arms up",
+  "w": 512,
+  "h": 512,
+  "fps": 30,
+  "frames": 120
+ },
+ {
+  "kind": "3d",
+  "src": "media/3d/car/source.mp4",
+  "out": "media/3d/car/truck.mp4",
+  "poster_src": "media/3d/car/source.jpg",
+  "poster_out": "media/3d/car/truck.jpg",
+  "mask": "media/3d/hero/car_truck_mask.png",
+  "task": "shape",
+  "label": "pickup truck",
+  "w": 512,
+  "h": 512,
+  "fps": 30,
+  "frames": 120
+ },
+ {
+  "kind": "3d",
+  "src": "media/3d/horse/source.mp4",
+  "out": "media/3d/horse/wings.mp4",
+  "poster_src": "media/3d/horse/source.jpg",
+  "poster_out": "media/3d/horse/wings.jpg",
+  "mask": "media/3d/hero/horse_wings_mask.png",
+  "task": "add",
+  "label": "wings",
+  "w": 512,
+  "h": 512,
+  "fps": 30,
+  "frames": 120
+ }
+];
