@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
-  <link rel="stylesheet" href="style.css?v=20261122e" />
+  <link rel="stylesheet" href="style.css?v=20261122f" />
 </head>
 <body>
   <!-- ───────────────────────── Navigation (appears after the intro) ───────────────────────── -->
@@ -108,9 +108,9 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.6 22.4c.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.9 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6A11.5 11.5 0 0 0 12 .5z"/></svg>
             Code
           </a>
-          <a class="pill is-soon" href="#" aria-disabled="true" onclick="return false">
+          <a class="pill" href="https://huggingface.co/datasets/Oshikaka/SPRITE" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z"/></svg>
-            SPRITE <small>soon</small>
+            SPRITE <small>data</small>
           </a>
           <a class="pill" href="#results">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
@@ -261,7 +261,7 @@
         <h3 class="sub-h reveal">The coupling in 3D</h3>
         <p class="sub-p reveal">The eagle edit, station by station: probes, region, coupling, shared keys and values, scaling back, result. Drag to rotate.</p>
         <div class="flow3d reveal" id="flow3d">
-          <iframe id="method3d" data-src="method3d.html?v=20261122e" title="UltraEdit coupling: interactive 3D view" loading="lazy"></iframe>
+          <iframe id="method3d" data-src="method3d.html?v=20261122f" title="UltraEdit coupling: interactive 3D view" loading="lazy"></iframe>
         </div>
         <p class="flow3d-cap">Interactive 3D view · drag to rotate · Ctrl/⌘ + scroll or pinch to zoom · <a href="method3d.html" target="_blank" rel="noopener">open full screen ↗</a></p>
 
@@ -288,7 +288,13 @@
         <h2 class="display reveal">SPRITE: a benchmark of<br /><span class="grad">mostly structural edits.</span></h2>
         <p class="lead reveal">Image-editing benchmarks are dominated by appearance edits. <b>SPRITE</b> collects <b>491 mostly structural edits</b>
           that change a <b>S</b>hape, <b>P</b>ose, <b>R</b>igid control, <b>I</b>nteraction, s<b>T</b>ate, or <b>E</b>xpression.
-          The source images, editing instructions, and evaluation annotations will be released.</p>
+          The source images, editing instructions, and evaluation annotations are on Hugging Face.</p>
+        <p class="reveal" style="margin:22px 0 0">
+          <a class="pill primary" href="https://huggingface.co/datasets/Oshikaka/SPRITE" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11.2l3.6-3.6 1.4 1.4-6 6-6-6 1.4-1.4 3.6 3.6V3h2zM5 19h14v2H5v-2z"/></svg>
+            Download SPRITE <small>Hugging Face ↗</small>
+          </a>
+        </p>
         <div class="sprite" id="sprite-grid"></div>
         <p class="sp-note reveal">Each card: one SPRITE edit (hover to see the result) with its benchmark instruction, and edit success in that category for UltraEdit and FlowEdit.</p>
 
@@ -343,15 +349,15 @@
     <div class="lb-in" id="lb-in"></div>
   </div>
 
-  <script src="data/hero.js?v=20261122e"></script>
-  <script src="data/hero_av.js?v=20261122e"></script>
-  <script src="data/gallery_img.js?v=20261122e"></script>
-  <script src="data/gallery_av.js?v=20261122e"></script>
-  <script src="data/compare_img.js?v=20261122e"></script>
-  <script src="data/compare_vid.js?v=20261122e"></script>
-  <script src="data/trajectory.js?v=20261122e"></script>
-  <script src="data/sprite.js?v=20261122e"></script>
+  <script src="data/hero.js?v=20261122f"></script>
+  <script src="data/hero_av.js?v=20261122f"></script>
+  <script src="data/gallery_img.js?v=20261122f"></script>
+  <script src="data/gallery_av.js?v=20261122f"></script>
+  <script src="data/compare_img.js?v=20261122f"></script>
+  <script src="data/compare_vid.js?v=20261122f"></script>
+  <script src="data/trajectory.js?v=20261122f"></script>
+  <script src="data/sprite.js?v=20261122f"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
-  <script src="main.js?v=20261122e"></script>
+  <script src="main.js?v=20261122f"></script>
 </body>
 </html>
