@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
-  <link rel="stylesheet" href="style.css?v=20261121t" />
+  <link rel="stylesheet" href="style.css?v=20261122e" />
 </head>
 <body>
   <!-- ───────────────────────── Navigation (appears after the intro) ───────────────────────── -->
@@ -38,6 +38,8 @@
 
       <div class="wall" id="wall" aria-hidden="true"></div>
       <div class="shade" id="shade" aria-hidden="true"></div>
+      <!-- Behind the title: the wall is frosted and a soft dark glow sits under the text. -->
+      <div class="veil" id="veil" aria-hidden="true"></div>
       <!-- Two fronts: the attention region is found first, the edit follows it. -->
       <div class="fronts" aria-hidden="true">
         <div class="front front-region" id="front-region"><span>TOKENS THAT CHANGE</span></div>
@@ -73,20 +75,25 @@
         <h2 class="hero-title">Text-Guided Editing with Adaptive Coupling</h2>
         <div class="hero-authors">
           <p class="author-row">
-            <a class="author" href="https://oshikaka.github.io/" target="_blank" rel="noopener">Xinru Jiang</a>
-            <span class="author">Armand Comas</span>
-            <span class="author">Lei Lu</span>
-            <span class="author">Yizhou Zhao</span>
-            <span class="author">Xi Xiao</span>
+            <a class="author" href="https://oshikaka.github.io/" target="_blank" rel="noopener">Xinru Jiang<sup>1</sup></a>
+            <span class="author">Armand Comas<sup>2</sup></span>
+            <span class="author">Lei Lu<sup>3</sup></span>
+            <span class="author">Yizhou Zhao<sup>4</sup></span>
+            <span class="author">Xi Xiao<sup>5</sup></span>
           </p>
           <p class="author-row">
-            <span class="author">Chenrui Ma</span>
-            <span class="author">Xiaomeng Yang</span>
-            <span class="author">Xiao Wang</span>
-            <span class="author">Octavia Camps</span>
-            <a class="author" href="https://lin-zhao-resolve.github.io/" target="_blank" rel="noopener">Lin Zhao<sup class="corr">*</sup></a>
+            <span class="author">Chenrui Ma<sup>6</sup></span>
+            <span class="author">Xiaomeng Yang<sup>1</sup></span>
+            <span class="author">Xiao Wang<sup>7</sup></span>
+            <span class="author">Octavia Camps<sup>1</sup></span>
+            <a class="author" href="https://lin-zhao-resolve.github.io/" target="_blank" rel="noopener">Lin Zhao<sup>1</sup><sup class="corr">*</sup></a>
           </p>
         </div>
+        <p class="hero-affil">
+          <span><sup>1</sup>Northeastern University</span><span><sup>2</sup>Google</span><span><sup>3</sup>Amazon</span>
+          <span><sup>4</sup>Carnegie Mellon University</span><span><sup>5</sup>University of Alabama at Birmingham</span>
+          <span class="affil-pair"><span><sup>6</sup>University of Virginia</span><span><sup>7</sup>Oak Ridge National Laboratory</span></span>
+        </p>
         <p class="hero-mail">
           <a href="mailto:jiang.xinru@northeastern.edu">jiang.xinru@northeastern.edu</a>
           <a href="mailto:zhao.lin1@northeastern.edu">zhao.lin1@northeastern.edu</a>
@@ -254,7 +261,7 @@
         <h3 class="sub-h reveal">The coupling in 3D</h3>
         <p class="sub-p reveal">The eagle edit, station by station: probes, region, coupling, shared keys and values, scaling back, result. Drag to rotate.</p>
         <div class="flow3d reveal" id="flow3d">
-          <iframe id="method3d" data-src="method3d.html?v=20261121t" title="UltraEdit coupling: interactive 3D view" loading="lazy"></iframe>
+          <iframe id="method3d" data-src="method3d.html?v=20261122e" title="UltraEdit coupling: interactive 3D view" loading="lazy"></iframe>
         </div>
         <p class="flow3d-cap">Interactive 3D view · drag to rotate · Ctrl/⌘ + scroll or pinch to zoom · <a href="method3d.html" target="_blank" rel="noopener">open full screen ↗</a></p>
 
@@ -278,10 +285,30 @@
     <section class="section" id="sprite">
       <div class="wrap">
         <p class="eyebrow reveal">04 / Benchmark</p>
-        <h2 class="display reveal">SPRITE: edits that<br /><span class="grad">need a new layout.</span></h2>
-        <p class="lead reveal">Most image-editing benchmarks are dominated by appearance edits. <b>SPRITE</b> collects <b>491 edits on 207 images</b>
-          that change a <b>S</b>hape, <b>P</b>ose, <b>R</b>igid control, <b>I</b>nteraction, s<b>T</b>ate or <b>E</b>xpression. Each card shows UltraEdit's edit success in that category next to FlowEdit's.</p>
+        <h2 class="display reveal">SPRITE: a benchmark of<br /><span class="grad">mostly structural edits.</span></h2>
+        <p class="lead reveal">Image-editing benchmarks are dominated by appearance edits. <b>SPRITE</b> collects <b>491 mostly structural edits</b>
+          that change a <b>S</b>hape, <b>P</b>ose, <b>R</b>igid control, <b>I</b>nteraction, s<b>T</b>ate, or <b>E</b>xpression.
+          The source images, editing instructions, and evaluation annotations will be released.</p>
         <div class="sprite" id="sprite-grid"></div>
+        <p class="sp-note reveal">Each card: one SPRITE edit (hover to see the result) with its benchmark instruction, and edit success in that category for UltraEdit and FlowEdit.</p>
+
+        <h3 class="sub-h reveal">Edit success per category</h3>
+        <p class="sub-p reveal">UltraEdit makes more of the edits than every baseline in every category; the gap is largest for shape and state edits, where the layout must change. Edit success in %, all editors on FLUX.1-dev at their released settings. Bold: best; underline: second-best.</p>
+        <div class="sp-table-wrap reveal">
+          <table class="sp-table">
+            <thead><tr><th>Category</th><th>Edits</th><th>RF-Solver-Edit</th><th>FireFlow</th><th>FlowEdit</th><th>Sync-SDE</th><th class="ours">UltraEdit</th></tr></thead>
+            <tbody>
+              <tr><td>Human pose</td><td>89</td><td><u>68.5</u></td><td>59.6</td><td><u>68.5</u></td><td>56.2</td><td class="ours"><b>89.9</b></td></tr>
+              <tr><td>Animal pose</td><td>78</td><td><u>62.8</u></td><td>51.3</td><td>61.5</td><td>42.3</td><td class="ours"><b>80.8</b></td></tr>
+              <tr><td>Interaction</td><td>77</td><td>42.9</td><td>33.8</td><td><u>48.1</u></td><td>32.5</td><td class="ours"><b>74.0</b></td></tr>
+              <tr><td>Shape</td><td>71</td><td>14.1</td><td>14.1</td><td>15.5</td><td><u>16.9</u></td><td class="ours"><b>63.4</b></td></tr>
+              <tr><td>State</td><td>54</td><td><u>20.4</u></td><td>18.5</td><td>16.7</td><td><u>20.4</u></td><td class="ours"><b>63.0</b></td></tr>
+              <tr><td>Expression</td><td>30</td><td>56.7</td><td>56.7</td><td><u>66.7</u></td><td>53.3</td><td class="ours"><b>73.3</b></td></tr>
+              <tr><td>Rigid control</td><td>92</td><td>63.0</td><td>64.1</td><td><u>65.2</u></td><td>56.5</td><td class="ours"><b>89.1</b></td></tr>
+            </tbody>
+            <tfoot><tr><td>All</td><td>491</td><td>48.7</td><td>43.8</td><td><u>50.1</u></td><td>40.5</td><td class="ours"><b>78.0</b></td></tr></tfoot>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -316,15 +343,15 @@
     <div class="lb-in" id="lb-in"></div>
   </div>
 
-  <script src="data/hero.js?v=20261121t"></script>
-  <script src="data/hero_av.js?v=20261121t"></script>
-  <script src="data/gallery_img.js?v=20261121t"></script>
-  <script src="data/gallery_av.js?v=20261121t"></script>
-  <script src="data/compare_img.js?v=20261121t"></script>
-  <script src="data/compare_vid.js?v=20261121t"></script>
-  <script src="data/trajectory.js?v=20261121t"></script>
-  <script src="data/sprite.js?v=20261121t"></script>
+  <script src="data/hero.js?v=20261122e"></script>
+  <script src="data/hero_av.js?v=20261122e"></script>
+  <script src="data/gallery_img.js?v=20261122e"></script>
+  <script src="data/gallery_av.js?v=20261122e"></script>
+  <script src="data/compare_img.js?v=20261122e"></script>
+  <script src="data/compare_vid.js?v=20261122e"></script>
+  <script src="data/trajectory.js?v=20261122e"></script>
+  <script src="data/sprite.js?v=20261122e"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
-  <script src="main.js?v=20261121t"></script>
+  <script src="main.js?v=20261122e"></script>
 </body>
 </html>

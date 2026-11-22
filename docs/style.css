@@ -662,3 +662,58 @@ a.author:hover { border-color: rgba(var(--region-rgb), .8); }
   -webkit-background-clip: text; background-clip: text; color: transparent;
   text-shadow: none; filter: drop-shadow(0 3px 18px rgba(0, 0, 0, .6));
 }
+
+.hero-affil { flex-wrap: wrap; gap: 2px 16px; max-width: 980px; margin-left: auto; margin-right: auto; font-size: 13.5px; }
+@media (max-width: 560px) { .hero-affil { font-size: 11.5px; gap: 0 10px; } }
+
+/* SPRITE section */
+.sp-facts { list-style: none; display: flex; flex-wrap: wrap; gap: 12px 40px; margin: 34px 0 0; padding: 0; }
+.sp-facts li { display: flex; flex-direction: column; }
+.sp-facts b { font-size: clamp(30px, 3.2vw, 42px); font-weight: 800; letter-spacing: -.04em; line-height: 1.05; }
+.sp-facts span { font: 500 11px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.sp .sp-ex { font-style: italic; color: #dfe3ee; }
+.sp-note { margin: 12px 0 0; font: 500 12px var(--mono); color: var(--dim); }
+.sp-how { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 56px; }
+.sp-how .n { text-transform: uppercase; letter-spacing: .18em; }
+.sp-how p { margin-top: 10px; }
+@media (max-width: 980px) { .sp-how { grid-template-columns: 1fr; } }
+.sp-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 16px 0 0; }
+.sp-metrics > div { padding: 16px 18px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); }
+.sp-metrics dt { font: 700 13px var(--mono); letter-spacing: .08em; color: #dcc2ff; }
+.sp-metrics dd { margin: 6px 0 0; color: var(--muted); font-size: 14.5px; }
+@media (max-width: 760px) { .sp-metrics { grid-template-columns: 1fr; } }
+.sp-table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+.sp-table { width: 100%; min-width: 640px; border-collapse: collapse; font-size: 14px; }
+.sp-table th, .sp-table td { padding: 11px 14px; text-align: right; white-space: nowrap; }
+.sp-table th:first-child, .sp-table td:first-child { text-align: left; }
+.sp-table thead th { font: 600 11.5px var(--mono); letter-spacing: .06em; color: var(--muted); border-bottom: 1px solid var(--line-2); }
+.sp-table tbody tr + tr td { border-top: 1px solid var(--line); }
+.sp-table td { font-family: var(--mono); color: #c9cfdd; }
+.sp-table td:first-child { font-family: var(--font); color: var(--ink); }
+.sp-table tfoot td { border-top: 1px solid var(--line-2); font-weight: 700; color: var(--ink); }
+.sp-table u { text-decoration-color: var(--muted); text-underline-offset: 3px; }
+.sp-table .ours { background: rgba(var(--region-rgb), .1); color: var(--ink); }
+.sp-table th.ours { color: #ffb3d3; }
+
+/* Title phase: frosted wall + a soft dark glow under the text */
+.wall { will-change: filter, transform; }
+.veil { position: absolute; inset: 0; z-index: 5; pointer-events: none; opacity: 0;
+  background:
+    radial-gradient(ellipse 46% 52% at 50% 50%, rgba(5, 6, 10, .74) 0%, rgba(5, 6, 10, .6) 55%, rgba(5, 6, 10, 0) 100%),
+    linear-gradient(rgba(5, 6, 10, .28), rgba(5, 6, 10, .28)); }
+/* small text gets a tight shadow so it holds on any tile */
+.hero-content .author-row, .hero-content .hero-affil, .hero-content .hero-mail, .hero-content .hero-corr,
+.hero-content .hero-kicker, .hero-content .hero-stats span { text-shadow: 0 1px 2px rgba(0, 0, 0, .9), 0 0 14px rgba(0, 0, 0, .7); }
+.hero-content .hero-affil { color: #b6bccb; }
+@media (max-width: 720px) { .veil { background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(5, 6, 10, .74), rgba(5, 6, 10, .5) 70%, rgba(5, 6, 10, .3)); } }
+
+.affil-pair { display: inline-flex; gap: 0 16px; white-space: nowrap; }   /* 6 and 7 always share a line */
+@media (max-width: 560px) { .affil-pair { gap: 0 10px; } }
+
+/* cursor light trail */
+.trail { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 85; pointer-events: none; mix-blend-mode: screen; }
+
+/* slider: a baseline on the right is labelled in neutral ink, UltraEdit in pink; the source cell is the fixed left side */
+.ctag.r.other { color: var(--ink); }
+.vcell.src .vi { border-color: rgba(var(--src-rgb), .55); }
+.vcell.src .vn::after { content: " · left"; color: var(--dim); font-weight: 500; }

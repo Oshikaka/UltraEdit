@@ -170,12 +170,12 @@
   }
 
   /* ───────────── Before/after slider (images or videos) ───────────── */
-  function makeCompare({ a, b, posterA, posterB, la = "Source", lb = "UltraEdit", ar = 1, marks, hint = true }) {
+  function makeCompare({ a, b, posterA, posterB, la = "Source", lb = "UltraEdit", ar = 1, marks, hint = true, oursRight = true }) {
     const vid = isVid(a) || isVid(b);
     const root = el("div", { class: "cmp", tabindex: 0, role: "slider", "aria-label": `Compare ${la} and ${lb}`, "aria-valuemin": 0, "aria-valuemax": 100, "aria-valuenow": 50, style: { "--ar": ar } });
     const A = vid ? vidEl(a, posterA, "a") : imgEl(a, la, "a");
     const B = vid ? vidEl(b, posterB, "b") : imgEl(b, lb, "b");
-    root.append(A, B, el("div", { class: "bar" }), el("div", { class: "knob", html: ICON.lr }), el("span", { class: "ctag l" }, la), el("span", { class: "ctag r" }, lb));
+    root.append(A, B, el("div", { class: "bar" }), el("div", { class: "knob", html: ICON.lr }), el("span", { class: "ctag l" }, la), el("span", { class: `ctag r${oursRight ? "" : " other"}` }, lb));
     (marks || []).forEach((m) => root.append(el("span", { class: "mark", style: { left: `${m.x * 100}%`, top: `${m.y * 100}%` } }, m.text || "")));
     if (hint) root.append(el("span", { class: "drag-hint" }, "← drag to compare →"));
     let pos = 50, drag = false, anim = 0;
@@ -223,6 +223,7 @@
   function initHero() {
     const track = $("#hero-track"), hero = $("#top"), wall = $("#wall");
     const fR = $("#front-region"), fE = $("#front-edit"), shade = $("#shade"), mask = $("#mask"), word = $("#mask-word");
+    const veil = $("#veil");
     const intro = $("#hero-intro"), hud = $("#hud"), hudT = $("#hud-t"), cue = $("#cue"), skip = $("#skip"), content = $("#hero-content"), lens = $("#lens-ring");
     const imgs = (UE.hero || []).slice(), avs = (UE.heroAV || []).slice();
     if (!imgs.length) {
@@ -290,8 +291,13 @@
       hud.style.opacity = 1 - smooth(0.58, 0.64, p);
       cue.style.opacity = 1 - smooth(0.0, 0.05, p);
       skip.style.opacity = 1 - smooth(0.7, 0.8, p); skip.style.pointerEvents = p > 0.78 ? "none" : "";
-      const sh = 0.5 * (1 - smooth(0.04, 0.12, p)) + 0.92 * smooth(0.60, 0.70, p);
+      // Title phase: frost the wall (blur, less colour) and darken under the text, so the wall reads as backdrop.
+      const kc = smooth(0.80, 0.90, p);
+      const sh = 0.5 * (1 - smooth(0.04, 0.12, p)) + 0.92 * smooth(0.60, 0.70, p) * (1 - 0.4 * kc);
       shade.style.opacity = sh;
+      veil.style.opacity = kc;
+      wall.style.filter = kc > 0.001 ? `blur(${(kc * 7).toFixed(2)}px) saturate(${(1 - 0.5 * kc).toFixed(3)})` : "";
+      wall.style.transform = kc > 0.001 ? `scale(${(1 + 0.03 * kc).toFixed(4)})` : "";   // overscan hides the blurred edge
       const mIn = smooth(0.60, 0.70, p), mOut = smooth(0.80, 0.87, p);
       const mv = mIn > 0 && mOut < 1;
       mask.style.visibility = mv ? "visible" : "hidden";
@@ -356,7 +362,7 @@
     const MODS = ["image", "video", "audio", "3d"].filter((m) => all.some((g) => tabOf(g) === m));
     const modNote = el("p", { class: "modnote" });
     modBox.after(modNote);
-    const st = { mod: MODS[0], task: "all", g: null, it: null, cmp: null, left: null };
+    const st = { mod: MODS[0], task: "all", g: null, it: null, cmp: null, right: null };
     const groupsOf = (m) => all.filter((g) => tabOf(g) === m);
     const hasTask = (g, t) => t === "all" || g.items.some((i) => i.task === t);
 
@@ -419,7 +425,7 @@
       if (st.cmp && st.cmp.sync) st.cmp.sync.destroy();
       if (curAudio) curAudio();
       view.innerHTML = "";
-      const g = st.g, it = st.it, base = baseOf(g, it), L = st.left;
+      const g = st.g, it = st.it, base = baseOf(g, it), R = st.right;   // the source stays on the left; R = the editor on the right
       if (st.mod === "audio") {
         // Audio has no slider: the source and the edit as two playable spectrograms.
         st.cmp = null;
@@ -430,10 +436,10 @@
         return;
       }
       const w = it.w || g.source.w || 1, h = it.h || g.source.h || 1;
-      st.cmp = makeCompare({ a: L ? L.out : base.src, b: it.out, posterA: L ? L.poster : base.poster, posterB: it.poster,
-        la: L ? L.name : base.label ? "Input" : "Source", ar: w / h, marks: L ? null : it.marks });
+      st.cmp = makeCompare({ a: base.src, b: R ? R.out : it.out, posterA: base.poster, posterB: R ? R.poster : it.poster,
+        la: base.label ? "Input" : "Source", lb: R ? R.name : "UltraEdit", oursRight: !R, ar: w / h, marks: it.marks });
       view.append(st.cmp.root);
-      $$(".vcell", vs).forEach((c) => c.setAttribute("aria-pressed", String(c.dataset.name === (L ? L.name : "Source"))));
+      $$(".vcell", vs).forEach((c) => c.setAttribute("aria-pressed", String(c.dataset.name === (R ? R.name : "UltraEdit"))));
     }
     function renderStrip() {
       vs.innerHTML = "";
@@ -441,15 +447,15 @@
       if (!bl.length) return;
       const cell = (name, src, poster, cls, onclick) => el("button", { class: `vcell ${cls || ""}`, "data-name": name, onclick },
         el("span", { class: "vi" }, isVid(src) ? (poster ? imgEl(poster, name) : vidEl(src)) : imgEl(src, name)), el("span", { class: "vn" }, name));
-      vs.append(el("p", { class: "vs-h" }, "Same edit by other editors", el("small", {}, " · released settings · click one to compare")));
+      vs.append(el("p", { class: "vs-h" }, "Same edit by other editors", el("small", {}, " · released settings · click one to compare it with the source")));
       const row = el("div", { class: "vs-row", style: { "--n": bl.length + 2, "--ar": (it.w || g.source.w || 1) / (it.h || g.source.h || 1) } });
-      row.append(cell(base.label ? "Input" : "Source", base.src, base.poster, "src", () => { st.left = null; renderSlider(); }));
-      for (const b of bl) row.append(cell(b.name, b.out, b.poster, "", () => { st.left = b; renderSlider(); }));
-      row.append(cell("UltraEdit", it.out, it.poster, "ours", () => { st.left = null; renderSlider(); }));
+      row.append(cell(base.label ? "Input" : "Source", base.src, base.poster, "src", () => { st.right = null; renderSlider(); }));
+      for (const b of bl) row.append(cell(b.name, b.out, b.poster, "", () => { st.right = b; renderSlider(); }));
+      row.append(cell("UltraEdit", it.out, it.poster, "ours", () => { st.right = null; renderSlider(); }));
       vs.append(row);
     }
     function renderStage() {
-      io.innerHTML = ""; st.left = null;
+      io.innerHTML = ""; st.right = null;
       const g = st.g, it = st.it, base = baseOf(g, it);
       renderStrip(); renderSlider();
       const editCard = el("div", { class: "io-card", style: { "--d": 2 } },
@@ -719,13 +725,15 @@
   }
 
   /* ───────────── 05 SPRITE ───────────── */
+  // Category names and counts from the paper's per-category table; each card's example is a SPRITE edit, quoted with its
+  // benchmark instruction (S: nre_0137_d, P: nre_0142_a, R: nre_0204_g, I: nre_0045_b, T: nre_0111_b, E: nre_0164_k).
   const SPRITE = [
-    ["S", "Shape", "shape", "Outlines and forms: a fanned tail, a bent stem, a new letter.", [["shape", 71, 63.4, 15.5]]],
-    ["P", "Pose", "pose", "Human and animal bodies: stand up, lie down, hands on hips.", [["human pose", 89, 89.9, 68.5], ["animal pose", 78, 80.8, 61.5]]],
-    ["R", "Rigid control", "move", "Add, remove, swap or move rigid objects.", [["rigid", 92, 89.1, 65.2]]],
-    ["I", "Interaction", "interaction", "A subject acting on an object: hold, carry, catch.", [["interaction", 77, 74.0, 48.1]]],
-    ["T", "sTate", "state", "Physical state: emptied, spilled, cracked, melted.", [["state", 54, 63.0, 16.7]]],
-    ["E", "Expression", "expression", "Faces: smile, yawn, surprise.", [["expression", 30, 73.3, 66.7]]],
+    ["S", "Shape", "shape", "Change the neon letter from S into I.", [["shape", 71, 63.4, 15.5]]],
+    ["P", "Pose", "pose", "Make the panda stand up.", [["human pose", 89, 89.9, 68.5], ["animal pose", 78, 80.8, 61.5]]],
+    ["R", "Rigid control", "move", "Replace the black bear with a gray wolf.", [["rigid control", 92, 89.1, 65.2]]],
+    ["I", "Interaction", "interaction", "Have the woman pull her scarf up over her mouth and nose.", [["interaction", 77, 74.0, 48.1]]],
+    ["T", "State", "state", "Knock the cup over so the coffee spills on the table.", [["state", 54, 63.0, 16.7]]],
+    ["E", "Expression", "expression", "Make her smile broadly.", [["expression", 30, 73.3, 66.7]]],
   ];
   const SPRITE_TASKS = { S: ["shape"], P: ["pose", "gesture"], R: ["move", "add", "delete", "swap"], I: ["interaction", "action"], T: ["state"], E: ["expression"] };
   function initSprite() {
@@ -738,7 +746,7 @@
       if (!pair) { const ex = items.find(({ it }) => SPRITE_TASKS[L].includes(it.task)); if (ex) pair = { src: baseOf(ex.g, ex.it).src, out: ex.it.out }; }
       const card = el("article", { class: "sp reveal", style: { "--task": taskColor(task) } },
         pair ? imgEl(pair.src, "", "s") : null, pair ? imgEl(pair.out, "", "o") : null,
-        el("p", { class: "L" }, L), el("h4", {}, name), el("p", {}, desc));
+        el("p", { class: "L" }, L), el("h4", {}, name), el("p", { class: "sp-ex" }, `“${desc}”`));
       for (const [lab, n, ours, fe] of rows) {
         card.append(el("div", { style: { marginTop: "10px" } },
           el("p", { style: { margin: "0 0 4px", font: "500 10.5px var(--mono)", color: "#aab0c0", letterSpacing: ".06em" } }, `${lab} · ${n} edits`),
@@ -805,9 +813,60 @@
   if (fig) { fig.style.cursor = "zoom-in"; fig.addEventListener("click", () => { lbIn.innerHTML = ""; lbIn.style.width = "min(1400px, 100%)"; lbIn.append(el("div", { style: { background: "#fff", borderRadius: "14px", padding: "16px" } }, imgEl($("img", fig).src, "Adaptive coupling"))); lb.classList.add("open"); $("#lb-close").focus(); }); }
   $("#fig-coupling img").addEventListener("error", () => { fig.style.display = "none"; fig.nextElementSibling.style.display = "none"; });
 
+  /* ───────────── Cursor light trail (mouse only; off for touch and reduced motion) ───────────── */
+  function initCursorTrail() {
+    if (reduced || !matchMedia("(pointer: fine)").matches) return;
+    const c = el("canvas", { class: "trail", "aria-hidden": "true" });
+    document.body.append(c);
+    const g = c.getContext("2d");
+    let W = 0, H = 0;
+    const size = () => {
+      const dpr = Math.min(2, devicePixelRatio || 1);
+      W = innerWidth; H = innerHeight; c.width = W * dpr; c.height = H * dpr; g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    size(); addEventListener("resize", size);
+    const LIFE = 450, pts = [];
+    // head → tail: pale pink, pink, violet, indigo (the page gradient, reversed)
+    const STOPS = [[255, 226, 238], [255, 111, 174], [181, 108, 255], [109, 123, 255]];
+    const col = (k, a) => {
+      k = clamp(k, 0, 1);   // an event can be stamped a moment after the frame's clock
+      const f = k * (STOPS.length - 1), i = Math.min(STOPS.length - 2, Math.floor(f)), u = f - i;
+      const [r, gg, b] = STOPS[i].map((v, j) => Math.round(v + (STOPS[i + 1][j] - v) * u));
+      return `rgba(${r},${gg},${b},${a.toFixed(3)})`;
+    };
+    let raf = 0;
+    function draw(now) {
+      while (pts.length && now - pts[0].t > LIFE) pts.shift();
+      g.clearRect(0, 0, W, H);
+      g.lineCap = "round"; g.lineJoin = "round";
+      for (let i = 1; i < pts.length; i++) {
+        const a = pts[i - 1], b = pts[i], life = clamp(1 - (now - b.t) / LIFE), k = 1 - life;
+        g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y);
+        g.strokeStyle = col(k, 0.14 * life); g.lineWidth = 16 * life + 1; g.stroke();    // glow
+        g.strokeStyle = col(k, 0.95 * life); g.lineWidth = 3.4 * life + 0.3; g.stroke(); // core
+      }
+      const h = pts[pts.length - 1];
+      if (h) {
+        const life = clamp(1 - (now - h.t) / LIFE);
+        const rg = g.createRadialGradient(h.x, h.y, 0, h.x, h.y, 14);
+        rg.addColorStop(0, col(0, 0.9 * life)); rg.addColorStop(1, col(0.3, 0));
+        g.fillStyle = rg; g.beginPath(); g.arc(h.x, h.y, 14, 0, Math.PI * 2); g.fill();
+      }
+      raf = pts.length ? requestAnimationFrame(draw) : 0;
+    }
+    addEventListener("pointermove", (e) => {
+      if (e.pointerType !== "mouse") return;
+      const evs = (e.getCoalescedEvents && e.getCoalescedEvents()) || [];
+      const now = performance.now();
+      for (const ev of evs.length ? evs : [e]) pts.push({ x: ev.clientX, y: ev.clientY, t: now });
+      if (pts.length > 160) pts.splice(0, pts.length - 160);
+      if (!raf) raf = requestAnimationFrame(draw);
+    }, { passive: true });
+  }
+
   /* ───────────── Boot ───────────── */
   const safe = (f) => { try { f(); } catch (err) { console.error(err); } };
   safe(initHero); safe(initGallery); safe(initTraj); safe(initMethod3d); safe(initEquations);
-  safe(initCharts); safe(initSprite);
+  safe(initCharts); safe(initSprite); safe(initCursorTrail);
   observeReveals();
 })();
