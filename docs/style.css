@@ -717,3 +717,8 @@ a.author:hover { border-color: rgba(var(--region-rgb), .8); }
 .ctag.r.other { color: var(--ink); }
 .vcell.src .vi { border-color: rgba(var(--src-rgb), .55); }
 .vcell.src .vn::after { content: " · left"; color: var(--dim); font-weight: 500; }
+
+/* promo video above 01 Overview */
+.promo { border-radius: 18px; overflow: hidden; border: 1px solid var(--line); background: #000; box-shadow: 0 30px 80px rgba(0,0,0,.45); }
+.promo video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
+#video { padding-bottom: clamp(48px, 6vw, 80px); }

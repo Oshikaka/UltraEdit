@@ -12,13 +12,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
-  <link rel="stylesheet" href="style.css?v=20261122h" />
+  <link rel="stylesheet" href="style.css?v=20261123a" />
 </head>
 <body>
   <!-- ───────────────────────── Navigation (appears after the intro) ───────────────────────── -->
   <header class="nav" id="nav">
     <a class="logo" href="#top"><i class="u">Ultra</i><span>Edit</span></a>
     <nav class="nav-links" aria-label="Sections">
+      <a href="#video">Video</a>
       <a href="#overview">Overview</a>
       <a href="#results">Results</a>
       <a href="#method">Method</a>
@@ -112,6 +113,10 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z"/></svg>
             SPRITE <small>data</small>
           </a>
+          <a class="pill" href="#video">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h13v14H3V5zm14 4.5L22 6v12l-5-3.5v-5z"/></svg>
+            Video
+          </a>
           <a class="pill" href="#results">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
             Results
@@ -131,6 +136,18 @@
   </div>
 
   <main id="site">
+    <!-- ───────────────────────── Video ───────────────────────── -->
+    <section class="section" id="video">
+      <div class="wrap">
+        <p class="eyebrow reveal">Video</p>
+        <div class="promo reveal">
+          <video controls playsinline preload="metadata" poster="media/promo/poster.jpg">
+            <source src="media/promo/ultraedit_promo.mp4" type="video/mp4" />
+          </video>
+        </div>
+      </div>
+    </section>
+
     <!-- ───────────────────────── 01 Overview ───────────────────────── -->
     <section class="section" id="overview">
       <div class="wrap">
@@ -349,15 +366,15 @@
     <div class="lb-in" id="lb-in"></div>
   </div>
 
-  <script src="data/hero.js?v=20261122h"></script>
-  <script src="data/hero_av.js?v=20261122h"></script>
-  <script src="data/gallery_img.js?v=20261122h"></script>
-  <script src="data/gallery_av.js?v=20261122h"></script>
-  <script src="data/compare_img.js?v=20261122h"></script>
-  <script src="data/compare_vid.js?v=20261122h"></script>
-  <script src="data/trajectory.js?v=20261122h"></script>
-  <script src="data/sprite.js?v=20261122h"></script>
+  <script src="data/hero.js?v=20261123a"></script>
+  <script src="data/hero_av.js?v=20261123a"></script>
+  <script src="data/gallery_img.js?v=20261123a"></script>
+  <script src="data/gallery_av.js?v=20261123a"></script>
+  <script src="data/compare_img.js?v=20261123a"></script>
+  <script src="data/compare_vid.js?v=20261123a"></script>
+  <script src="data/trajectory.js?v=20261123a"></script>
+  <script src="data/sprite.js?v=20261123a"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
-  <script src="main.js?v=20261122h"></script>
+  <script src="main.js?v=20261123a"></script>
 </body>
 </html>

@@ -67,116 +67,116 @@ window.UE = window.UE || {}; UE.galleryImg = [
     "h": 512
    },
    {
-    "id": "neon_C",
+    "id": "neon_E",
     "task": "shape",
-    "label": "letter C",
-    "target_prompt": "A glowing bright blue neon light tube in the shape of the capital letter \"C\" (one round open curve with a wide gap on the right side), mounted on a square blue sign panel with a thin dark frame on a pole, at night in front of dark blurred city buildings with small warm lights.",
+    "label": "letter E",
+    "target_prompt": "A glowing bright blue neon light tube in the shape of the capital letter \"E\" (one vertical stroke with three horizontal bars to the right: top, middle and bottom), mounted on a square blue sign panel with a thin dark frame on a pole, at night in front of dark blurred city buildings with small warm lights.",
     "source_prompt": "A glowing bright blue neon light tube in the shape of the capital letter \"I\" (one single straight vertical stroke), mounted on a square blue sign panel with a thin dark frame on a pole, at night in front of dark blurred city buildings with small warm lights.",
     "from": "neon_I",
-    "out": "media/img/neon/neon_C.webp",
+    "out": "media/img/neon/neon_E.webp",
     "baselines": [
      {
       "name": "RF-Solver-Edit",
-      "out": "media/img/neon/neon_C__rfsolver.webp"
+      "out": "media/img/neon/neon_E__rfsolver.webp"
      },
      {
       "name": "FireFlow",
-      "out": "media/img/neon/neon_C__fireflow.webp"
+      "out": "media/img/neon/neon_E__fireflow.webp"
      },
      {
       "name": "FlowEdit",
-      "out": "media/img/neon/neon_C__flowedit.webp"
+      "out": "media/img/neon/neon_E__flowedit.webp"
      },
      {
       "name": "Sync-SDE",
-      "out": "media/img/neon/neon_C__syncsde.webp"
+      "out": "media/img/neon/neon_E__syncsde.webp"
      }
     ],
     "w": 512,
     "h": 512
    },
    {
-    "id": "neon_V",
+    "id": "neon_D",
     "task": "shape",
-    "label": "letter V",
-    "target_prompt": "A glowing bright blue neon light tube in the shape of the capital letter \"V\" (two diagonal strokes meeting in a point at the bottom), mounted on a square blue sign panel with a thin dark frame on a pole, at night in front of dark blurred city buildings with small warm lights.",
+    "label": "letter D",
+    "target_prompt": "A glowing bright blue neon light tube in the shape of the capital letter \"D\" (one vertical stroke with a closed half-round curve on its right side), mounted on a square blue sign panel with a thin dark frame on a pole, at night in front of dark blurred city buildings with small warm lights.",
     "source_prompt": "A glowing bright blue neon light tube in the shape of the capital letter \"I\" (one single straight vertical stroke), mounted on a square blue sign panel with a thin dark frame on a pole, at night in front of dark blurred city buildings with small warm lights.",
     "from": "neon_I",
-    "out": "media/img/neon/neon_V.webp",
+    "out": "media/img/neon/neon_D.webp",
     "baselines": [
      {
       "name": "RF-Solver-Edit",
-      "out": "media/img/neon/neon_V__rfsolver.webp"
+      "out": "media/img/neon/neon_D__rfsolver.webp"
      },
      {
       "name": "FireFlow",
-      "out": "media/img/neon/neon_V__fireflow.webp"
+      "out": "media/img/neon/neon_D__fireflow.webp"
      },
      {
       "name": "FlowEdit",
-      "out": "media/img/neon/neon_V__flowedit.webp"
+      "out": "media/img/neon/neon_D__flowedit.webp"
      },
      {
       "name": "Sync-SDE",
-      "out": "media/img/neon/neon_V__syncsde.webp"
+      "out": "media/img/neon/neon_D__syncsde.webp"
      }
     ],
     "w": 512,
     "h": 512
    },
    {
-    "id": "neon_P",
+    "id": "neon_I0",
     "task": "shape",
-    "label": "letter P",
-    "target_prompt": "A glowing bright blue neon light tube in the shape of the capital letter \"P\" (one vertical stroke with a closed loop at the top), mounted on a square blue sign panel with a thin dark frame on a pole, at night in front of dark blurred city buildings with small warm lights.",
+    "label": "letter I",
+    "target_prompt": "A glowing bright blue neon light tube in the shape of the capital letter \"I\" (one single straight vertical stroke), mounted on a square blue sign panel with a thin dark frame on a pole, at night in front of dark blurred city buildings with small warm lights.",
     "source_prompt": "A glowing bright blue neon light tube in the shape of the capital letter \"I\" (one single straight vertical stroke), mounted on a square blue sign panel with a thin dark frame on a pole, at night in front of dark blurred city buildings with small warm lights.",
     "from": "neon_I",
-    "out": "media/img/neon/neon_P.webp",
+    "out": "media/img/neon/neon_I0.webp",
     "baselines": [
      {
       "name": "RF-Solver-Edit",
-      "out": "media/img/neon/neon_P__rfsolver.webp"
+      "out": "media/img/neon/neon_I0__rfsolver.webp"
      },
      {
       "name": "FireFlow",
-      "out": "media/img/neon/neon_P__fireflow.webp"
+      "out": "media/img/neon/neon_I0__fireflow.webp"
      },
      {
       "name": "FlowEdit",
-      "out": "media/img/neon/neon_P__flowedit.webp"
+      "out": "media/img/neon/neon_I0__flowedit.webp"
      },
      {
       "name": "Sync-SDE",
-      "out": "media/img/neon/neon_P__syncsde.webp"
+      "out": "media/img/neon/neon_I0__syncsde.webp"
      }
     ],
     "w": 512,
     "h": 512
    },
    {
-    "id": "neon_R",
+    "id": "neon_T",
     "task": "shape",
-    "label": "letter R",
-    "target_prompt": "A glowing bright blue neon light tube in the shape of the capital letter \"R\" (one vertical stroke with a closed loop at the top and a straight diagonal leg from the loop down to the right), mounted on a square blue sign panel with a thin dark frame on a pole, at night in front of dark blurred city buildings with small warm lights.",
+    "label": "letter T",
+    "target_prompt": "A glowing bright blue neon light tube in the shape of the capital letter \"T\" (one horizontal bar across the top with one vertical stroke down from its middle), mounted on a square blue sign panel with a thin dark frame on a pole, at night in front of dark blurred city buildings with small warm lights.",
     "source_prompt": "A glowing bright blue neon light tube in the shape of the capital letter \"I\" (one single straight vertical stroke), mounted on a square blue sign panel with a thin dark frame on a pole, at night in front of dark blurred city buildings with small warm lights.",
     "from": "neon_I",
-    "out": "media/img/neon/neon_R.webp",
+    "out": "media/img/neon/neon_T.webp",
     "baselines": [
      {
       "name": "RF-Solver-Edit",
-      "out": "media/img/neon/neon_R__rfsolver.webp"
+      "out": "media/img/neon/neon_T__rfsolver.webp"
      },
      {
       "name": "FireFlow",
-      "out": "media/img/neon/neon_R__fireflow.webp"
+      "out": "media/img/neon/neon_T__fireflow.webp"
      },
      {
       "name": "FlowEdit",
-      "out": "media/img/neon/neon_R__flowedit.webp"
+      "out": "media/img/neon/neon_T__flowedit.webp"
      },
      {
       "name": "Sync-SDE",
-      "out": "media/img/neon/neon_R__syncsde.webp"
+      "out": "media/img/neon/neon_T__syncsde.webp"
      }
     ],
     "w": 512,
